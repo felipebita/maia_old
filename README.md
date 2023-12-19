@@ -2,6 +2,8 @@
 <img src="https://raw.githubusercontent.com/felipebita/maia/master/img/logo_wd.png">
 </center>
 
+Access the app: [MAIA](https://maia-67dp.onrender.com)
+
 Introducing MAIA, your all-in-one solution for seamless interaction with information and creativity! Our app harnesses the power of AI to bring you a unique set of features designed to enhance your productivity and creativity.
 
 **1. Chat with Documents:**
