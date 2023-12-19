@@ -27,10 +27,10 @@ def token_count(text):
     encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
     return len(encoding.encode(text))
 
-def summarizer(llm_model, temperature, prompt, docs, type,refine_prompt):
+def summarizer(llm_model, temperature, prompt, docs, type,refine_prompt=None):
     llm = ChatOpenAI(model_name=llm_model,temperature=temperature)
-    if len(docs) < 2:
-        chain = load_summarize_chain(llm, chain_type="stuff", prompt=prompt)
+    if type == 'stuff':
+        chain = load_summarize_chain(llm, chain_type=type, prompt=prompt)
     elif type == "map_reduce":
         chain = load_summarize_chain(llm, chain_type=type, map_prompt=prompt, combine_prompt=prompt)
     else:
@@ -81,12 +81,18 @@ def main():
                 {text}
                 ------------
                 Given the new context, refine the original summary. If the context isn't useful, return the original summary.""")
-            refine_prompt = PromptTemplate.from_template(refine_txt)  
+            refine_prompt = PromptTemplate.from_template(refine_txt)
+    else:
+        st.session_state.type = 'stuff'
+ 
 
     if st.button("Process",key='runmodel'):
         with st.spinner("Processing"):
-            if st.session_state.type == "map_reduce":
-                summarized = summarizer(llm_model=st.session_state.llm_model, temperature=st.session_state.temperature, prompt=prompt,docs=txt_splt(txt_sum,st.session_state.split_size), type=st.session_state.type)
+            if st.session_state.type == "stuff":
+                summarized = summarizer(llm_model=st.session_state.llm_model, temperature=st.session_state.temperature, prompt=prompt,docs=txt_splt(txt_sum,st.session_state.split_size),type=st.session_state.type)
+                txt_prompt = st.text_area("Here is your summarization and you can edit it. \n\n", summarized)
+            elif st.session_state.type == "map_reduce":
+                summarized = summarizer(llm_model=st.session_state.llm_model, temperature=st.session_state.temperature, prompt=prompt,docs=txt_splt(txt_sum,st.session_state.split_size),type=st.session_state.type)
                 txt_prompt = st.text_area("Here is your summarization and you can edit it. \n\n", summarized)
             else:
                 summarized = summarizer(llm_model=st.session_state.llm_model, temperature=st.session_state.temperature, prompt=prompt,docs=txt_splt(txt_sum,st.session_state.split_size),type=st.session_state.type,refine_prompt=refine_prompt)
