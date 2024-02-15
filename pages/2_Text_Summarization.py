@@ -1,41 +1,8 @@
 import streamlit as st
 from PyPDF2 import PdfReader
 from dotenv import load_dotenv
-import tiktoken
-from langchain.text_splitter import TokenTextSplitter
-from langchain.docstore.document import Document
-from langchain.text_splitter import CharacterTextSplitter
-from langchain.chat_models import ChatOpenAI
+import src.src2 as src 
 from langchain.prompts import PromptTemplate
-from langchain.chains.summarize import load_summarize_chain
-
-def get_pdf_text(pdf_docs):
-    text = ""
-    for pdf in pdf_docs:
-        pdf_reader = PdfReader(pdf)
-        for page in pdf_reader.pages:
-            text += page.extract_text()
-    return text
-
-def txt_splt(text,split_size):
-    text_splitter = TokenTextSplitter(chunk_size=split_size, chunk_overlap=0)
-    texts = text_splitter.split_text(text)
-    docs = [Document(page_content=t) for t in texts]
-    return docs
-
-def token_count(text):
-    encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
-    return len(encoding.encode(text))
-
-def summarizer(llm_model, temperature, prompt, docs, type,refine_prompt=None):
-    llm = ChatOpenAI(model_name=llm_model,temperature=temperature)
-    if type == 'stuff':
-        chain = load_summarize_chain(llm, chain_type=type, prompt=prompt)
-    elif type == "map_reduce":
-        chain = load_summarize_chain(llm, chain_type=type, map_prompt=prompt, combine_prompt=prompt)
-    else:
-        chain = load_summarize_chain(llm, chain_type=type, question_prompt=prompt, refine_prompt=refine_prompt)
-    return chain.run(docs)
 
 def main():
     load_dotenv()
@@ -61,7 +28,7 @@ def main():
             "Text to summarize.",
             "Inser your text here."
             )
-    st.write(f"""Your text has '{len(txt_sum)}' characters and '{token_count(txt_sum)}' tokens.""")
+    st.write(f"""Your text has '{len(txt_sum)}' characters and '{src.token_count(txt_sum)}' tokens.""")
 
     txt_prompt = st.text_area(
             "Define your prompt.",
@@ -69,7 +36,7 @@ def main():
             '{text}'""")
     prompt = PromptTemplate.from_template(txt_prompt)
 
-    if token_count(txt_sum) > st.session_state.split_size:
+    if src.token_count(txt_sum) > st.session_state.split_size:
         st.session_state.type = st.radio('Summarization Method:',["map_reduce","refine"],index=0,)
         if st.session_state.type == "refine":
             refine_txt = st.text_area(
@@ -89,13 +56,25 @@ def main():
     if st.button("Process",key='runmodel'):
         with st.spinner("Processing"):
             if st.session_state.type == "stuff":
-                summarized = summarizer(llm_model=st.session_state.llm_model, temperature=st.session_state.temperature, prompt=prompt,docs=txt_splt(txt_sum,st.session_state.split_size),type=st.session_state.type)
+                summarized = src.summarizer(llm_model=st.session_state.llm_model, 
+                                            temperature=st.session_state.temperature, 
+                                            prompt=prompt,
+                                            docs=src.txt_splt(txt_sum,st.session_state.split_size),
+                                            type=st.session_state.type)
                 txt_prompt = st.text_area("Here is your summarization and you can edit it. \n\n", summarized)
             elif st.session_state.type == "map_reduce":
-                summarized = summarizer(llm_model=st.session_state.llm_model, temperature=st.session_state.temperature, prompt=prompt,docs=txt_splt(txt_sum,st.session_state.split_size),type=st.session_state.type)
+                summarized = src.summarizer(llm_model=st.session_state.llm_model, 
+                                            temperature=st.session_state.temperature, 
+                                            prompt=prompt,
+                                            docs=src.txt_splt(txt_sum,st.session_state.split_size),
+                                            type=st.session_state.type)
                 txt_prompt = st.text_area("Here is your summarization and you can edit it. \n\n", summarized)
             else:
-                summarized = summarizer(llm_model=st.session_state.llm_model, temperature=st.session_state.temperature, prompt=prompt,docs=txt_splt(txt_sum,st.session_state.split_size),type=st.session_state.type,refine_prompt=refine_prompt)
+                summarized = src.summarizer(llm_model=st.session_state.llm_model,
+                                            temperature=st.session_state.temperature, 
+                                            prompt=prompt,
+                                            docs=src.txt_splt(txt_sum,st.session_state.split_size),
+                                            type=st.session_state.type,refine_prompt=refine_prompt)
                 txt_prompt = st.text_area("Here is your summarization and you can edit it. \n\n", summarized)
 
 if __name__ == '__main__':
