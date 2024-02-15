@@ -17,6 +17,12 @@ RUN pip3 install --upgrade pip
 # Install requirements as root
 RUN pip3 install -r /maia/requirements.txt
 
+# Expose port
+EXPOSE 8501
+
+# Helth check
+HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health
+
 # Create a new user
 RUN useradd -ms /bin/bash appuser
 
@@ -29,4 +35,4 @@ USER appuser
 # Set the working directory
 WORKDIR /maia
 
-CMD ["streamlit", "run", "Home.py"]
+CMD ["streamlit", "run", "Home.py", "--server.port=8501", "--server.address=0.0.0.0"]
