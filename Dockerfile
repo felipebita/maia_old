@@ -8,6 +8,9 @@ RUN apt-get update && \
     apt-get install -y python3 && \
     apt-get clean
 
+# Install libgl1 for cv
+RUN apt-get install -y python3-opencv
+
 # Install pip    
 RUN apt-get install -y python3-pip
 
