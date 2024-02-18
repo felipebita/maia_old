@@ -18,5 +18,7 @@ steps:
     - 'us-central1'
 images:
   - 'gcr.io/$PROJECT_ID/maia:$COMMIT_SHA'
+
+  
 options:
   logging: CLOUD_LOGGING_ONLY
