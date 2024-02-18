@@ -9,12 +9,12 @@ steps:
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
-    - 'run'
-    - 'deploy'
-    - 'maia'
-    - '--image'
-    - 'gcr.io/$PROJECT_ID/maia:$COMMIT_SHA'
-    - '--region'
-    - 'southamerica-east1'
+      - 'run'
+      - 'deploy'
+      - 'maia'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/maia:$COMMIT_SHA'
+      - '--region'
+      - 'southamerica-east1'
   images:
   - 'gcr.io/$PROJECT_ID/maia:$COMMIT_SHA'
