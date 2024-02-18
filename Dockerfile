@@ -21,7 +21,7 @@ RUN pip3 install --upgrade pip
 RUN pip3 install -r /maia/requirements.txt
 
 # Expose port
-EXPOSE 8501
+EXPOSE 8080
 
 # Helth check
 HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health
@@ -38,4 +38,4 @@ USER appuser
 # Set the working directory
 WORKDIR /maia
 
-CMD ["streamlit", "run", "Home.py", "--server.port=8501", "--server.address=0.0.0.0"]
+CMD ["streamlit", "run", "Home.py", "--server.port=8080", "--server.address=0.0.0.0"]

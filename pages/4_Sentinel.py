@@ -14,6 +14,11 @@ def main():
         st.markdown("This is just an example tool. Please, do not abuse on my OpenAI credits, use it only for testing purposes.")
 
     st.header("Sentinel :video_camera:")
+    
+    with st.expander("Identifiable objects"):
+        model = src.load_model(model_path)
+        st.write(model.names)
+
     tab1, tab2 = st.tabs(["Image","Video"])
     with tab1:
         source_img = st.file_uploader("Choose an image...", type=("jpg", "jpeg", "png", 'bmp', 'webp'))
